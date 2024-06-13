@@ -29,7 +29,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     post.image.endsWith(".mov") ||
     post.image.endsWith(".mkv");
   return (
-    <div className="sm:w-full sm:p-1 ss:p-2 sm:h-96 dark:bg-gray-800 ss:w-77 ss:h-80">
+    <div className="sm:w-full sm:p-1 ss:p-2 sm:h-96 dark:bg-gray-800 ss:w-77 ss:h-80 " >
       <div className="bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 h-full flex flex-col">
 
         <Link href={`/Blogpage/${post._id}`} className="flex-grow">
