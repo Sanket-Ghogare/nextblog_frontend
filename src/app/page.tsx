@@ -3,6 +3,7 @@
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import Link from 'next/link'
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 
 // interface Details {
@@ -38,6 +39,12 @@ export const Login = () => {
       }
 
       const data = await response.json();
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('isAdmin',data.isAdmin ? 'true' : 'false');
+      localStorage.setItem('username',data.username);
+
+      toast.success("userLogin Successfully");
+
       router.push("/Home");
       console.log("data",data);
 

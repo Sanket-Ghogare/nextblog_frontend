@@ -74,9 +74,14 @@ const EditBlogPage: React.FC = () => {
         formData.append('image', image);
       }
   
+      const accessToken = localStorage.gsteItem('accessToken');
       const response = await fetch(`http://localhost:5000/api/update/${post._id}`, {
         method: "PUT",
         body: formData, // No need to specify headers for FormData
+        headers:{
+          Authorization:`Bearer ${accessToken}`,
+        }
+
       });
   
       if (response.ok) {
@@ -127,19 +132,19 @@ const EditBlogPage: React.FC = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  <input className="block w-full dark:bg-gray-800 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 hidden" aria-describedby="file_input_help" id="file_input" type="file" onChange={handleFileChange} />
+                  <input className="w-full dark:bg-gray-800 text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:border-gray-600 dark:placeholder-gray-400 hidden" aria-describedby="file_input_help" id="file_input" type="file" onChange={handleFileChange} />
     
                 </div>
                 
                 <button type='submit' className={`mx-4  bg-blue-500 px-6 my-3 py-1 float-right text-white rounded-md uppercase `}>
-                  {/* {isLoading? 'Updateing...' :'Update'} */}
+                  {loading? 'Updateing...' :'Update'}
                 </button>
     
               </div>
               <div className='pl-10 dark:bg-gray-800' >
                 <input name="title " value={title} onChange={(e) => setTitle(e.target.value)} className='w-full mt-2 ml-1 outline-none text-2xl dark:bg-gray-800 dark:text-white' type="text" placeholder='Title' />
               </div>
-              <div className='my-3 mx-6'>
+              <div className='my-3 mx-6  dark:text-white'>
                 <textarea name="content" value={content} onChange={(e) => setContent(e.target.value)} className="resize-none rounded-md p-2 focus:outline-none w-full text-xl dark:bg-gray-800" placeholder='Tell your story... '></textarea>
               </div>
             </form>

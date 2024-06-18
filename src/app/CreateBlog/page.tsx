@@ -30,9 +30,13 @@ const CreateBlog = () => {
     }
 
     try {
+      const accessToken = localStorage.getItem('accessToken');
       const response = await fetch("http://localhost:5000/api/upload", {
         method: "POST",
         body: formData,
+        headers:{
+          Authorization: `Bearer ${accessToken}`,
+        }
       });
 
       const data = await response.json();
