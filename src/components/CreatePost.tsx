@@ -22,16 +22,16 @@ const CreatePost = () => {
 
   const blogData = async () => {
     try {
-      const accessToken = localStorage.getItem('accessToken');
-      if (!accessToken) {
-        toast.error('No access token found. Please log in.');
-        return;
-      }
+      // const accessToken = localStorage.getItem('accessToken');
+      // if (!accessToken) {
+      //   toast.error('No access token found. Please log in.');
+      //   return;
+      // }
 
       const response = await fetch("http://localhost:5000/api/blog", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        // headers: {
+        //   Authorization: `Bearer ${accessToken}`,
+        // },
       });
 
       if (response.status === 404) {
@@ -45,7 +45,7 @@ const CreatePost = () => {
         toast.success("Successfully fetched the blog");
         const data: Post[] = await response.json();
         setPosts(data);
-        console.log("data", data);
+        // console.log("data", data);
       }
     } catch (error) {
       toast.error("Error fetching data:");

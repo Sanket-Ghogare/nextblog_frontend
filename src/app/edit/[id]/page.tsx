@@ -74,13 +74,13 @@ const EditBlogPage: React.FC = () => {
         formData.append('image', image);
       }
   
-      const accessToken = localStorage.gsteItem('accessToken');
+      // const accessToken = localStorage.getItem('accessToken');
       const response = await fetch(`http://localhost:5000/api/update/${post._id}`, {
         method: "PUT",
         body: formData, // No need to specify headers for FormData
-        headers:{
-          Authorization:`Bearer ${accessToken}`,
-        }
+        // headers:{
+        //   Authorization:`Bearer ${accessToken}`,
+        // }
 
       });
   

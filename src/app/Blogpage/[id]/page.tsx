@@ -22,7 +22,7 @@ interface Post {
 
 interface Comment {
   _id: string;
-  name: string;
+  username: string;
   postid: string;
   comments: string;
   date: string;
@@ -38,8 +38,14 @@ const BlogPage: React.FC = () => {
   const id = searchParams?.get("id") || "";
   const [newComment, setNewComment] = useState<string>("");
   const [comments, setComments] = useState<Comment[]>([]);
-  const [curretUser, setCurrentUser] = useState<string | null>("");
-
+  const [curretUser, setCurrentUser] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) {
+      setCurrentUser(storedUsername);
+    }
+  }, []);
   useEffect(() => {
     if (!params || !params.id) {
       toast.error("Invalid post ID");
@@ -48,15 +54,15 @@ const BlogPage: React.FC = () => {
 
     const blogdata = async () => {
       try {
-        const username = localStorage.getItem("username");
-        setCurrentUser(username);
+        // const username = localStorage.getItem("username");
+        // setCurrentUser(username);
         const response = await fetch(
           `http://localhost:5000/api/categories/${params.id}`
         );
         if (response.ok) {
           const postdata = await response.json();
           setPost(postdata);
-          console.log("postdata", postdata);
+          // console.log("postdata", postdata);
         } else {
           toast.error("Failed to fetch the post data");
         }
@@ -66,7 +72,23 @@ const BlogPage: React.FC = () => {
     };
 
     blogdata();
-  }, [params]);
+
+    const fetchcomment = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/comments1");
+        if (!response.ok) {
+          throw new Error("Failed to fetch comment data");
+        }
+        const comment = await response.json();
+        setComments(
+          comment.filter((comment: Comment) => comment.postid === params.id)
+        );
+      } catch (error) {
+        console.error("Error fetching comment data:", error);
+      }
+    };
+    fetchcomment();
+  }, [params,comments]);
 
   if (!post) {
     return <div>Loading...</div>;
@@ -74,19 +96,19 @@ const BlogPage: React.FC = () => {
 
   const deletepost = async () => {
     try {
-      const accessToken = localStorage.getItem("accessToken");
+      // const accessToken = localStorage.getItem("accessToken");
       const response = await fetch(
         `http://localhost:5000/api/delete/${post._id}`,
         {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+          // headers: {
+          //   Authorization: `Bearer ${accessToken}`,
+          // },
         }
       );
       if (response.ok) {
         const postdata = await response.json();
-        console.log("postdata", postdata);
+        // console.log("postdata", postdata);
         router.push("/Home");
       } else {
         toast.error("Failed to delete data");
@@ -109,23 +131,26 @@ const BlogPage: React.FC = () => {
     router.push(`/edit/${post._id}`);
   };
 
-  const HandleComment = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const CreateComment = async () => {
     try {
       const username = localStorage.getItem("username");
-
+      // const username = localStorage.getItem("username");
+      const postId = post._id;
+      // console.log("username", username);
+      const requestBody = {
+        username: username,
+        postid: postId.toString(),
+        comments: newComment,
+      };
       const response = await fetch("http://localhost:5000/api/comments", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: username,
-          postId: id,
-          comments: newComment,
-        }),
+        body: JSON.stringify(requestBody),
       });
-      console.log("Comment Posted");
+      console.log("Request Body:", requestBody);
+
       if (!response.ok) {
         throw new Error("Network response was not good");
       }
@@ -135,23 +160,6 @@ const BlogPage: React.FC = () => {
     }
   };
   // show comments
-  useEffect(() => {
-    const fetchcomment = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/comments1");
-        if (!response.ok) {
-          throw new Error("Failed to fetch comment data");
-        }
-        const comment = await response.json();
-        setComments(
-          comment.filter((comment: Comment) => comment.postid === id)
-        );
-      } catch (error) {
-        console.error("Error fetching comment data:", error);
-      }
-    };
-    fetchcomment();
-  }, [comments]);
 
   // update
   async function updateComment(
@@ -161,7 +169,7 @@ const BlogPage: React.FC = () => {
     comments: string
   ) {
     try {
-      const response = await fetch(`/comments/${id}`, {
+      const response = await fetch(`http://localhost:5000/api/comments/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -202,6 +210,9 @@ const BlogPage: React.FC = () => {
       throw error;
     }
   }
+
+  // update comments
+
   return (
     <div className="dark:bg-gray-800">
       <div className="relative dark:bg-gray-800">
@@ -309,7 +320,7 @@ const BlogPage: React.FC = () => {
               placeholder="comment Here... "
             ></textarea>
             <button
-              onClick={HandleComment}
+              onClick={CreateComment}
               className=" bg-blue-500 rounded-md px-6  h-10 text-white"
             >
               Post
@@ -325,7 +336,7 @@ const BlogPage: React.FC = () => {
             >
               <button
                 className={`float-right ${
-                  comment.name === curretUser ? "" : "hidden"
+                  comment.username === curretUser ? "" : "hidden"
                 }`}
                 onClick={() => deleteComment(comment._id)}
               >
@@ -338,6 +349,37 @@ const BlogPage: React.FC = () => {
                   <path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z" />
                 </svg>
               </button>
+
+              {/* <button
+                className={`float-right ${
+                  comment.username === curretUser ? "" : "hidden"
+                }`}
+                onClick={() => updateComment(
+                  comment._id,
+                  comment.username,
+                  comment.postid,
+                  comment.comments
+                )}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  className="icon icon-tabler icons-tabler-outline icon-tabler-edit"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+                  <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                  <path d="M16 5l3 3" />
+                </svg>
+              </button> */}
+
               <div className="flex  space-x-6  dark:bg-gray-800  ">
                 <div className="flex  dark:bg-gray-800 ">
                   <div className="mt-2 ml-4  dark:bg-gray-800 ">
@@ -354,7 +396,7 @@ const BlogPage: React.FC = () => {
                   </div>
                   <div className=" dark:bg-gray-800 ">
                     <p className="font-bold text-lg ml-2 dark:text-gray-400">
-                      {comment.name}
+                      {comment.username}
                     </p>
                   </div>
                 </div>

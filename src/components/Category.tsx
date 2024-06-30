@@ -1,11 +1,15 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { categories } from './Categories';
 import Link from 'next/link'
 
 const Category = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
+  
+
+  
+ 
 
   const handleCategoryClick = (categoryType: string) => {
     setSelectedCategory(categoryType);
@@ -16,7 +20,7 @@ const Category = () => {
       <div>
         <div className="underline text-blue-700 flex  dark:bg-gray-700 dark:text-white">
           <table>
-            <thead>
+            {/* <thead>
               <tr>
                 <td className="mt-10 py-3 px-10 border border-gray-300">
                   <Link href="/Home" className=" cursor-pointer">
@@ -25,7 +29,7 @@ const Category = () => {
                   </Link>
                 </td>
               </tr>
-            </thead>
+            </thead> */}
 
             <tbody >
             {
@@ -45,8 +49,8 @@ const Category = () => {
         </tbody>
           </table>
         </div>
-
-        {/* <div className=" w-full mt-2">
+{/* 
+        <div className=" w-full mt-2">
           <Link href="/admin/home">
             <button className=" bg-blue-600 uppercase text-white ml-3 my-3 px-10 py-1 rounded-md">
               Admin

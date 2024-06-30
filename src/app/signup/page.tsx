@@ -1,48 +1,59 @@
-'use client';
+"use client";
 
 import React, { useState, FormEvent, ChangeEvent, useEffect } from "react";
-import Link from 'next/link'
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-
+import toast from "react-hot-toast";
 
 export const SignUp = () => {
-    const router = useRouter();
+  const router = useRouter();
   const [fromData, setFromdata] = useState({
     username: "",
     email: "",
     password: "",
   });
 
-    const handleChange = (e:ChangeEvent<HTMLInputElement>)=>{
-      setFromdata({...fromData ,[e.target.name]:e.target.value});
-    }
-  
-    const handlesubmit = async (e: FormEvent) => {
-      e.preventDefault();
-      const  {username, email, password} = fromData;
-      try {
-        const response = await fetch("http://localhost:5000/api/signup", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username,email, password}),
-        });
-  
-        if (!response.ok) {
-          console.error(`Error:${response.status}`);
-        }
-  
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setFromdata({ ...fromData, [e.target.name]: e.target.value });
+  };
+
+  const handlesubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const { username, email, password } = fromData;
+    try {
+      const response = await fetch("http://localhost:5000/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      // if (!response.ok) {
+      //   console.error(`Error:${response.status}`);
+      // }
+      if (response.ok) {
         const data = await response.json();
+        alert("User Signup successfully");
+        const toastId = toast.success("User Signup successfully", {
+          duration: 3000,
+        });
+        setTimeout(() => {
+          toast.dismiss(toastId);
+        }, 3000);
         router.push("/");
-        console.log("data",data);
-  
-      } catch (error) {
-          console.log("LOgin error ", error);
-          alert("error");
+      }else{
+        console.error(`Error:${response.status}`);
+        alert(" Signin error");
       }
-    };
-  
+
+      // console.log("data",data);
+    } catch (error) {
+      // toast.error(error.message);
+      console.log("Signin ", error);
+      alert(" Signin error");
+    }
+  };
 
   return (
     <>
@@ -55,19 +66,22 @@ export const SignUp = () => {
                 <div className="flex flex-col items-center"></div>
                 <form onSubmit={handlesubmit}>
                   <div className="mx-auto max-w-xs">
-                    <input onChange={handleChange}
+                    <input
+                      onChange={handleChange}
                       name="username"
                       className="w-full mt-10 px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mb-3"
                       type="username"
                       placeholder="Username"
                     />
-                    <input onChange={handleChange}
+                    <input
+                      onChange={handleChange}
                       name="email"
                       className="w-full mt-2 px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
                       type="email"
                       placeholder="Email"
                     />
-                    <input onChange={handleChange}
+                    <input
+                      onChange={handleChange}
                       name="password"
                       className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                       type="password"

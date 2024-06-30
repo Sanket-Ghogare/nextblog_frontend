@@ -1,60 +1,100 @@
-'use client';
+"use client";
 
-import React, { useState, FormEvent, ChangeEvent } from "react";
-import Link from 'next/link'
+import React, { useState, FormEvent, ChangeEvent, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
-
+import toast, { Toaster, ToastBar } from "react-hot-toast";
 
 // interface Details {
 //   username: string;
 //   password: string;
 // }
 
-
 export const Login = () => {
   const [Details, setDetails] = useState({
     username: "",
     password: "",
   });
+
   const router = useRouter();
-  const handleChange = (e:ChangeEvent<HTMLInputElement>)=>{
-    setDetails({...Details ,[e.target.name]:e.target.value});
-  }
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setDetails({ ...Details, [e.target.name]: e.target.value });
+  };
 
   const handlesubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const  {username, password} = Details;
+    const { username, password } = Details;
     try {
+      // const accessToken = localStorage.getItem('accessToken');
       const response = await fetch("http://localhost:5000/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // Authorization : `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ username, password}),
+        body: JSON.stringify({ username, password }),
       });
-
-      if (!response.ok) {
-        console.error(`Error:${response.status}`);
-      }
-
+      // console.log('acesstoken',accessToken);
       const data = await response.json();
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('isAdmin',data.isAdmin ? 'true' : 'false');
-      localStorage.setItem('username',data.username);
+      if (response.ok) {
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("isAdmin", data.isAdmin ? "true" : "false");
+        localStorage.setItem("username", data.username);
 
-      toast.success("userLogin Successfully");
+        // console.log("accesstoken", data.accessToken);
 
-      router.push("/Home");
-      console.log("data",data);
-
+        const toastId = toast.success("User logged in successfully", {
+          duration: 3000, // 3 seconds
+        });
+        setTimeout(() => {
+          toast.dismiss(toastId);
+        }, 3000);
+        alert("User logged in successfully");
+        router.push("/Home");
+        // console.log("data", data);
+      } else {
+        toast.error("Error while fetching the data");
+        alert("Error while fetching the data");
+        throw new Error("Network response was not ok");
+      }
     } catch (error) {
-        console.log("LOgin error ", error);
-        alert("error");
+      alert("invalid email or password");
+      toast.error("error while fetch the data");
+      console.log("LOgin error ", error);
     }
   };
   return (
     <>
+      <Toaster
+        toastOptions={{
+          className: "my-toast",
+          style: {
+            background: "#333",
+            color: "#fff",
+            padding: "16px",
+            borderRadius: "8px",
+          },
+        }}
+      >
+        {(t) => (
+          <ToastBar
+            toast={t}
+            style={{
+              background: t.visible ? "#333" : "",
+              padding: "16px",
+              color: "#fff",
+              borderRadius: "8px",
+            }}
+          >
+            {({ icon, message }) => (
+              <>
+                {icon}
+                {message}
+              </>
+            )}
+          </ToastBar>
+        )}
+      </Toaster>
       <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
         <div className="max-w-screen-xl m-0 sm:m-10 bg-white shadow sm:rounded-lg flex justify-center flex-1">
           <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
@@ -64,23 +104,25 @@ export const Login = () => {
                 <div className="flex flex-col items-center"></div>
 
                 <div className="my-3 border-b text-center"></div>
-                <form onSubmit={handlesubmit} >
+                <form onSubmit={handlesubmit}>
                   <div className="mx-auto max-w-xs">
-                    <input onChange={handleChange}
+                    <input
+                      onChange={handleChange}
                       name="username"
                       className="w-full mt-12 px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mb-3"
                       type="username"
                       placeholder="Username"
                       value={Details.username}
                     />
-                    <input onChange={handleChange}
+                    <input
+                      onChange={handleChange}
                       name="password"
                       className="w-full  px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-6"
                       type="password"
                       placeholder="Password"
                       value={Details.password}
                     />
-                    <button 
+                    <button
                       type="submit"
                       className="mt-8 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"
                     >
